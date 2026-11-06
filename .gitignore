@@ -1,0 +1,53 @@
+# Python virtual environments
+venv/
+.venv/
+env/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Downloaded datasets and processed face images
+/data/*
+!/data/.gitkeep
+
+# Trained classifiers and generated model artifacts
+/models/*
+!/models/.gitkeep
+*.joblib
+*.pkl
+*.pickle
+*.pt
+*.pth
+
+# Generated evaluation reports and plots
+/reports/*
+!/reports/.gitkeep
+
+# Build and packaging artifacts
+build/
+dist/
+*.egg-info/
+
+# IDE and operating system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary files and logs
+*.log
+*.tmp
+*.bak
+~$*
