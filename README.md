@@ -77,7 +77,7 @@ The SVM and Logistic Regression candidates are tuned using cross-validation. KNN
 ## Technology stack
 
 - **Language:** Python
-- **Face detection and embeddings:** MTCNN, FaceNet, `facenet-pytorch`
+- **Face detection and embeddings:** MTCNN, FaceNet, facenet-pytorch
 - **Machine learning:** scikit-learn
 - **Data processing:** NumPy, pandas
 - **Image processing:** Pillow
