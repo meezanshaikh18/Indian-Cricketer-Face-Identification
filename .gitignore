@@ -1,7 +1,11 @@
-# Python virtual environments
+# Python virtual environments (including local project-specific environments)
 venv/
+venv*/
 .venv/
+.venv*/
+.venv312/
 env/
+env*/
 
 # Python bytecode and caches
 __pycache__/
@@ -9,16 +13,18 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.ipynb_checkpoints/
 .coverage
+.coverage.*
 htmlcov/
 
-# Local environment and secrets
+# Local environment files and secrets
 .env
 .env.*
 !.env.example
 .streamlit/secrets.toml
 
-# Downloaded datasets and processed face images
+# Downloaded datasets, processed face images, and generated embeddings
 /data/*
 !/data/.gitkeep
 
@@ -40,11 +46,14 @@ build/
 dist/
 *.egg-info/
 
-# IDE and operating system files
+# IDE and editor files
 .vscode/
 .idea/
+
+# Operating system files
 .DS_Store
 Thumbs.db
+Desktop.ini
 
 # Temporary files and logs
 *.log

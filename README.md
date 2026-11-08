@@ -1,8 +1,8 @@
 # Indian Cricketer Face Identification
 
-A computer vision and machine learning project that identifies a cricket player from an uploaded face image. The pipeline detects and crops a face, extracts a 512-dimensional FaceNet embedding, and uses a trained classifier to predict one of the players included in the training dataset. If the prediction confidence is below a configurable threshold, the application returns **Unknown**.
+A computer vision and machine learning project that identifies a cricket player from an uploaded face image. The pipeline detects and crops a face, extracts a 512-dimensional FaceNet embedding, and uses a trained classifier to predict one of the players represented in the training dataset. If prediction confidence is below a configurable threshold, the application returns **Unknown**.
 
-The project includes a Streamlit web interface, command-line prediction, model comparison, a PCA + SVM baseline, and evaluation reports.
+The project includes a Streamlit web application, command-line prediction, classifier comparison, a PCA + SVM baseline, and evaluation reports.
 
 ## Table of contents
 
@@ -13,10 +13,10 @@ The project includes a Streamlit web interface, command-line prediction, model c
 - [Project structure](#project-structure)
 - [Getting started](#getting-started)
 - [Run the pipeline](#run-the-pipeline)
-- [Launch the Streamlit application](#launch-the-streamlit-application)
-- [Make a command-line prediction](#make-a-command-line-prediction)
+- [Launch the application](#launch-the-application)
+- [Command-line prediction](#command-line-prediction)
 - [Configuration](#configuration)
-- [Evaluation outputs](#evaluation-outputs)
+- [Evaluation results](#evaluation-results)
 - [Tests](#tests)
 - [Troubleshooting](#troubleshooting)
 - [Limitations and responsible use](#limitations-and-responsible-use)
@@ -27,10 +27,10 @@ The application is designed to:
 
 - Detect a face in an input image and create a standardized face crop.
 - Extract facial features using the pretrained FaceNet `InceptionResnetV1` model.
-- Train and compare SVM, Logistic Regression, and KNN classifiers using the extracted embeddings.
-- Compare the embedding-based approach with a traditional PCA + SVM baseline using grayscale image pixels.
+- Train and compare SVM, Logistic Regression, and KNN classifiers using the embeddings.
+- Compare the embedding-based approach with a PCA + SVM baseline using grayscale image pixels.
 - Display the predicted player, confidence, and alternative matches.
-- Return **Unknown** when the prediction confidence is below the configured threshold.
+- Return **Unknown** when prediction confidence is below the configured threshold.
 
 > The model can only predict players represented in its training data. It is not a general-purpose face recognition system.
 
@@ -63,21 +63,21 @@ Trained classifier
 
 | Stage | Implementation | Purpose |
 |---|---|---|
-| Dataset download | KaggleHub | Downloads the Indian cricketers dataset |
-| Dataset inspection | Custom Python utilities | Discovers image files and their player labels |
+| Dataset download | KaggleHub | Downloads the Indian Cricketers dataset |
+| Dataset inspection | Custom Python utilities | Discovers image files and player labels |
 | Face detection | MTCNN via `facenet-pytorch` | Detects and crops faces |
-| Feature extraction | FaceNet `InceptionResnetV1`, pretrained on VGGFace2 | Converts each face into a 512-dimensional embedding |
-| Classifier training | SVM, Logistic Regression, and KNN | Trains and compares classifiers using the embeddings |
+| Feature extraction | FaceNet `InceptionResnetV1`, pretrained on VGGFace2 | Creates 512-dimensional embeddings |
+| Classifier training | SVM, Logistic Regression, and KNN | Trains and compares classifiers |
 | Baseline | Grayscale pixels, PCA, and SVM | Provides a traditional computer-vision baseline |
 | Inference | Shared prediction pipeline | Produces a prediction, confidence, and top matches |
-| User interface | Streamlit | Allows users to upload an image and view the result |
+| User interface | Streamlit | Allows image upload and displays results |
 
 The SVM and Logistic Regression candidates are tuned using cross-validation. KNN is included in the comparison, but is not selected for deployment because its probability estimates are not suitable for the project's confidence-threshold-based **Unknown** handling.
 
 ## Technology stack
 
 - **Language:** Python
-- **Face detection and embeddings:** MTCNN, FaceNet, facenet-pytorch
+- **Face detection and embeddings:** MTCNN, FaceNet, `facenet-pytorch`
 - **Machine learning:** scikit-learn
 - **Data processing:** NumPy, pandas
 - **Image processing:** Pillow
@@ -88,185 +88,191 @@ The SVM and Logistic Regression candidates are tuned using cross-validation. KNN
 
 ## Dataset
 
-This project uses the **Indian Cricketers Dataset** published on Kaggle:
+This project uses the [Indian Cricketers Dataset on Kaggle](https://www.kaggle.com/datasets/aviratgupta/indian-cricketers-dataset).
 
-- Dataset: [Indian Cricketers Dataset](https://www.kaggle.com/datasets/aviratgupta/indian-cricketers-dataset)
-- Kaggle dataset identifier used by the project: `aviratgupta/indian-cricketers-dataset`
+- **Kaggle dataset identifier:** `aviratgupta/indian-cricketers-dataset`
+- The dataset is downloaded locally by `src/download_data.py` through KaggleHub.
+- Dataset images are not included in this repository.
 
-The dataset is downloaded locally by `src/download_data.py` through KaggleHub. It is not included in this repository. Please review the dataset's Kaggle page and follow its terms and usage conditions.
+Review the dataset's Kaggle page and follow its terms and usage conditions.
 
 ## Project structure
 
 ```text
 cricketer-face-id/
-|
-|-- app.py                    # Streamlit application
-|-- run_all.py                # Runs the complete training pipeline
-|-- check_setup.py            # Checks the Python environment and dependencies
-|-- config.py                 # Central project configuration
-|-- conftest.py               # Pytest configuration
-|-- requirements.txt          # Python dependencies
-|-- .gitignore
-|-- README.md
-|
-|-- src/
-|   |-- __init__.py
-|   |-- download_data.py      # Step 1: download dataset
-|   |-- inspect_dataset.py    # Step 2: inspect dataset structure
-|   |-- preprocess.py         # Step 3: detect and crop faces
-|   |-- embeddings.py         # Step 4: extract FaceNet embeddings
-|   |-- train.py              # Step 5: train and evaluate classifiers
-|   |-- train_baseline.py     # Step 6: PCA + SVM baseline
-|   |-- face_embedder.py      # MTCNN and FaceNet wrapper
-|   |-- inference.py          # Shared prediction logic
-|   |-- predict.py            # Command-line prediction
-|   |-- data_utils.py         # Dataset discovery and data utilities
-|
-|-- tests/
-|   |-- __init__.py
-|   |-- test_pipeline.py      # Automated pipeline tests
-|
-|-- data/
-|   |-- .gitkeep              # Generated dataset and intermediate data are not committed
-|
-|-- models/
-|   |-- .gitkeep              # Trained model artifacts are not committed
-|
-|-- reports/
-    |-- .gitkeep              # Generated evaluation reports are not committed
+├── app.py
+├── run_all.py
+├── check_setup.py
+├── config.py
+├── conftest.py
+├── requirements.txt
+├── .gitignore
+├── README.md
+├── src/
+│   ├── __init__.py
+│   ├── download_data.py
+│   ├── inspect_dataset.py
+│   ├── preprocess.py
+│   ├── embeddings.py
+│   ├── train.py
+│   ├── train_baseline.py
+│   ├── face_embedder.py
+│   ├── inference.py
+│   ├── predict.py
+│   └── data_utils.py
+├── tests/
+│   ├── __init__.py
+│   └── test_pipeline.py
+├── data/
+│   └── .gitkeep
+├── models/
+│   └── .gitkeep
+└── reports/
+    └── .gitkeep
 ```
 
-Dataset files, processed images, embeddings, trained models, and generated reports are created locally when you run the pipeline. They are excluded from Git by the repository's `.gitignore`.
+Dataset files, processed images, embeddings, trained models, and generated reports are created locally and excluded from Git. The `.gitkeep` files preserve the empty directories in the repository.
 
 ## Getting started
 
-### 1. Requirements
+### Requirements
 
-- Python **3.10, 3.11, or 3.12** (64-bit).
+- 64-bit Windows, macOS, or Linux.
+- Python **3.10, 3.11, or 3.12**. Python 3.12 is the tested setup for this project.
 - Internet connection for downloading the dataset and pretrained FaceNet weights.
-- A CPU is sufficient; a GPU is optional.
+- CPU is sufficient; a compatible GPU is optional.
 
-The project's current setup instructions target Python 3.10–3.12. Python 3.13 is not listed as supported for this dependency setup.
-
-### 2. Clone the repository
-
-Replace `<your-github-username>` with your GitHub username after publishing the repository.
+### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<your-github-username>/cricketer-face-id.git
-cd cricketer-face-id
+git clone https://github.com/meezanshaikh18/indian-cricketer-face-identification.git
+cd indian-cricketer-face-identification
 ```
 
-### 3. Create and activate a virtual environment
+### 2. Create an environment
 
-**Windows PowerShell**
+#### Windows with Anaconda / Miniconda
 
 ```powershell
-python -m venv venv
-.\venv\Scripts\Activate.ps1
+conda create -n cricket-faceid python=3.12 -y
+conda activate cricket-faceid
 ```
 
-If PowerShell blocks script execution for the current terminal session, run:
+If the environment already exists, activate it instead:
+
+```powershell
+conda activate cricket-faceid
+```
+
+#### Windows without Conda
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+If PowerShell blocks script execution in the current terminal session:
 
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
-.\venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 ```
 
-**macOS / Linux**
+#### macOS / Linux
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+python3.12 -m venv .venv
+source .venv/bin/activate
 ```
 
-### 4. Install dependencies
+### 3. Install dependencies
+
+Run these commands after activating the environment:
 
 ```bash
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-### 5. Check the setup
+**PyArrow compatibility note:** If you use the NumPy 1.x dependency set in this project and encounter an import error stating that PyArrow requires NumPy 2 or later, install the compatible PyArrow version:
+
+```bash
+python -m pip install --force-reinstall --no-deps pyarrow==19.0.1
+```
+
+### 4. Verify the setup
 
 ```bash
 python check_setup.py
 ```
 
-This script checks the Python environment and required packages and initializes the face-model setup. The first run may download pretrained model weights and therefore requires an internet connection.
+This checks the Python environment and required packages and initializes the face-model setup. The first run may download pretrained model weights, so an internet connection is required.
 
 ## Run the pipeline
 
-### Option A: Run all steps
+### Option A: Run all stages
 
-Run the following from the project root:
+From the project root:
 
 ```bash
 python run_all.py
 ```
 
-This executes the complete pipeline:
+The complete pipeline:
 
-1. Download the dataset.
-2. Inspect the dataset structure.
-3. Detect and crop faces.
-4. Generate FaceNet embeddings.
-5. Train and evaluate the embedding-based classifiers.
-6. Train and evaluate the PCA + SVM baseline.
-
-When the pipeline finishes, launch the application:
-
-```bash
-streamlit run app.py
-```
+1. Downloads the dataset.
+2. Inspects the dataset structure.
+3. Detects and crops faces.
+4. Generates FaceNet embeddings.
+5. Trains and evaluates embedding-based classifiers.
+6. Trains and evaluates the PCA + SVM baseline.
 
 ### Option B: Skip dataset download
 
-If the dataset has already been downloaded and is available at the path recorded by the project, use:
+If the dataset has already been downloaded and is available at the path expected by the project:
 
 ```bash
 python run_all.py --skip-download
 ```
 
-This skips only the dataset-download step and runs the remaining pipeline stages.
+This skips **only** the dataset-download stage. It still runs inspection, preprocessing, embedding generation, and training.
 
-### Option C: Run each stage separately
+### Option C: Run stages individually
 
-Run these commands in order from the project root:
+Run from the project root, in order:
 
 | Step | Command | Purpose |
 |---|---|---|
 | 1 | `python -m src.download_data` | Download the Kaggle dataset |
-| 2 | `python -m src.inspect_dataset` | Inspect dataset folders, labels, and image counts |
-| 3 | `python -m src.preprocess` | Remove exact duplicate files, detect faces, and save face crops |
-| 4 | `python -m src.embeddings` | Generate FaceNet embeddings and handle near-duplicate embeddings |
+| 2 | `python -m src.inspect_dataset` | Inspect folders, labels, and image counts |
+| 3 | `python -m src.preprocess` | Remove exact duplicates, detect faces, and save face crops |
+| 4 | `python -m src.embeddings` | Generate FaceNet embeddings and handle near duplicates |
 | 5 | `python -m src.train` | Train, tune, compare, and evaluate classifiers |
 | 6 | `python -m src.train_baseline` | Train and evaluate the PCA + SVM baseline |
-| 7 | `streamlit run app.py` | Launch the web application |
 
-For a quick preprocessing check, process a limited number of images per player:
+For a limited preprocessing check:
 
 ```bash
 python -m src.preprocess --limit 10
 ```
 
-This is useful for testing the face-detection stage before processing the full dataset. It does not replace a complete training run.
+This processes a limited number of images per player for a quick face-detection check. It does not replace a complete training run.
 
-## Launch the Streamlit application
+## Launch the application
 
-After the training pipeline has successfully created the trained classifier, run:
+After the training pipeline has successfully created the model artifacts:
 
 ```bash
 streamlit run app.py
 ```
 
-The application opens in your browser. Upload a supported image (`JPG`, `JPEG`, `PNG`, or `WEBP`) to view the prediction.
+Streamlit will print a local URL, usually `http://localhost:8501`, which you can open in your browser.
 
-The interface displays the uploaded image and prediction result. It also provides a confidence-threshold setting, the deployed model name, the player classes known to the model, and alternative matches when available.
+Upload a supported image (`JPG`, `JPEG`, `PNG`, or `WEBP`) to view the prediction. The interface displays the prediction result, confidence, confidence-threshold setting, known player classes, and alternative matches when available.
 
 If the model has not been trained, the application will report that the trained model file is missing. Run the pipeline first.
 
-## Make a command-line prediction
+## Command-line prediction
 
 After training, pass an image path to the prediction script:
 
@@ -274,17 +280,17 @@ After training, pass an image path to the prediction script:
 python -m src.predict path/to/photo.jpg
 ```
 
-You can optionally override the confidence threshold:
+To override the confidence threshold:
 
 ```bash
 python -m src.predict path/to/photo.jpg --threshold 0.60
 ```
 
-The command-line prediction reports the predicted label, confidence, threshold, and top matches. If no clear face is detected, it reports that no face was found. If confidence is below the threshold, the result is **Unknown**.
+The command reports the predicted label, confidence, threshold, and top matches. If no clear face is detected, it reports that no face was found. If confidence is below the threshold, the result is **Unknown**.
 
 ## Configuration
 
-Project settings are centralized in `config.py`. Change these values there rather than editing individual pipeline scripts.
+Project settings are centralized in `config.py`.
 
 | Setting | Default | Description |
 |---|---:|---|
@@ -294,21 +300,35 @@ Project settings are centralized in `config.py`. Change these values there rathe
 | `MIN_FACE_SIZE` | `40` | Minimum accepted face size in pixels |
 | `MIN_DETECTION_PROB` | `0.90` | Minimum face-detection confidence |
 | `MAX_IMAGE_SIDE` | `1280` | Maximum image side length before detection |
-| `MIN_IMAGES_PER_CLASS` | `20` | Minimum usable face images required for a player class |
+| `MIN_IMAGES_PER_CLASS` | `20` | Minimum usable face images required per player |
 | `MAX_CLASSES` | `None` | Optional limit on the number of player classes |
 | `TEST_SIZE` | `0.2` | Proportion reserved for the test split |
-| `SEED` | `42` | Random seed used by the training utilities |
-| `DEDUP_COSINE` | `0.98` | Cosine-similarity threshold used for near-duplicate handling |
+| `SEED` | `42` | Random seed used by training utilities |
+| `DEDUP_COSINE` | `0.98` | Cosine-similarity threshold for near-duplicate handling |
 | `UNKNOWN_THRESHOLD` | `0.50` | Confidence below which a prediction is returned as Unknown |
 | `BASELINE_IMAGE_SIZE` | `64` | Image size used by the PCA + SVM baseline |
 
-To limit the number of player classes used, set `MAX_CLASSES` in `config.py` to a number such as `8`. The default `None` does not impose this class-count limit. Use the dataset inspection command to review the labels available in the downloaded dataset.
+Change settings in `config.py` rather than editing individual pipeline scripts. For example, set `MAX_CLASSES` to `8` to limit the number of player classes. The default `None` does not impose this limit.
 
-## Evaluation outputs
+## Evaluation results
 
-The training scripts create reports in the local `reports/` directory. The exact metrics depend on the dataset contents, preprocessing results, selected classes, and training run.
+The following results are from one completed run using the project's configured 20-player selection and the downloaded Kaggle dataset. Results can vary with dataset contents, preprocessing, configuration, and random split.
 
-Important outputs include:
+| Metric | Result |
+|---|---:|
+| Selected embedding model | SVM |
+| Players evaluated | 20 |
+| Face crops saved | 476 |
+| Embeddings saved after near-duplicate handling | 462 |
+| SVM test accuracy | 93.5% |
+| SVM macro F1-score | 0.934 |
+| Logistic Regression test accuracy | 94.6% |
+| KNN test accuracy | 94.6% |
+| PCA + SVM baseline test accuracy | 31.2% |
+
+The SVM was selected by the project's model-selection procedure for deployment. The classifier comparison and baseline are reported separately; the highest individual test accuracy in this run was not the deployed model.
+
+Generated reports are saved in `reports/` and include:
 
 | File | Description |
 |---|---|
@@ -318,28 +338,26 @@ Important outputs include:
 | `threshold_table.csv` | Coverage and accuracy at different confidence thresholds |
 | `misclassified.csv` | Test examples incorrectly classified by the selected model |
 | `class_distribution.png` | Class distribution visualization |
-| `preprocess_summary.csv` | Per-player preprocessing counts, including detected and missed faces |
-| `model_comparison.csv` | Comparison of embedding-based classifiers and the PCA + SVM baseline |
+| `preprocess_summary.csv` | Per-player preprocessing counts |
+| `model_comparison.csv` | Comparison of embedding-based classifiers and PCA + SVM |
 | `baseline_confusion_matrix.png` | Confusion matrix for the PCA + SVM baseline |
-| `eigenfaces.png` | Visualization of principal components from the baseline |
+| `eigenfaces.png` | Principal-component visualization for the baseline |
 
-Review the generated reports after training before describing model performance in a project report, portfolio, or internship submission. Do not quote an accuracy or other performance value unless it comes from your own completed run.
+Review the generated reports before quoting performance values in a portfolio, report, or internship submission.
 
 ## Tests
 
-The project includes automated tests for dataset discovery, data utilities, training, and the PCA + SVM baseline.
-
-Install the dependencies, activate the virtual environment, and run:
+Run the automated tests from the project root with the environment activated:
 
 ```bash
 python -m pytest -q
 ```
 
-These tests validate code behavior using test data. Passing the automated tests does not, by itself, establish the model's accuracy on the full Kaggle dataset. Run the complete pipeline and review its evaluation reports to assess real dataset performance.
+The current tested environment completed **9 tests successfully**. Tests validate code behavior using test data; they do not independently establish model accuracy on the full dataset.
 
 ## Troubleshooting
 
-**The trained model file is missing**
+### The trained model file is missing
 
 Run the complete pipeline before starting Streamlit:
 
@@ -347,50 +365,53 @@ Run the complete pipeline before starting Streamlit:
 python run_all.py
 ```
 
-**The dataset path is unknown**
+### The dataset is not found
 
-Download the dataset first:
+Run the dataset download stage:
 
 ```bash
 python -m src.download_data
 ```
 
-**No labelled images are found**
+### No labelled images are found
 
-Run the dataset inspection step:
+Inspect the dataset structure:
 
 ```bash
 python -m src.inspect_dataset
 ```
 
-Check the dataset's folder and image naming structure. The project derives labels from the discovered dataset paths; an unexpected layout may require changes to the dataset discovery utilities.
+The project derives labels from discovered dataset paths. An unexpected folder layout may require changes to the dataset discovery utilities.
 
-**No clear face is detected**
+### No clear face is detected
 
-Try a sharper, front-facing image with a clearly visible face. Small, blurry, side-facing, or obstructed faces may not be detected.
+Try a sharp, front-facing image with a clearly visible face. Small, blurry, side-facing, or obstructed faces may not be detected.
 
-**Dependency installation fails**
+### Dependency installation or import errors
 
-Confirm that you are using Python 3.10, 3.11, or 3.12 in a 64-bit environment. Upgrade pip and retry installation:
+Confirm that the intended environment is active and that Python is 3.10, 3.11, or 3.12:
 
 ```bash
-python -m pip install --upgrade pip
-pip install -r requirements.txt
+python --version
+python -m pip --version
+python -m pip check
 ```
 
-**Predictions are frequently returned as Unknown**
+If you use the NumPy 1.x dependency set and see a PyArrow/NumPy compatibility error, apply the PyArrow compatibility command in the dependency-installation section.
 
-Review the confidence threshold in `config.py` or the Streamlit sidebar. A lower threshold may increase the number of accepted predictions, but can also allow more incorrect predictions. Use `threshold_table.csv` to understand the coverage-versus-accuracy trade-off before changing the default.
+### Predictions are frequently returned as Unknown
 
-**Some player classes have weak results**
+Review the confidence threshold in `config.py` or the Streamlit sidebar. A lower threshold may increase accepted predictions but can also allow more incorrect predictions. Use `threshold_table.csv` to assess the coverage-versus-accuracy trade-off.
 
-Review `preprocess_summary.csv`, `misclassified.csv`, and `classification_report.txt`. Differences in the number and quality of usable face images can affect per-player performance.
+### Some player classes have weak results
+
+Review `preprocess_summary.csv`, `misclassified.csv`, and `classification_report.txt`. The number and quality of usable face images can affect per-player performance.
 
 ## Limitations and responsible use
 
 - This is an educational project using a dataset of public cricket figures.
 - The model only recognizes classes represented in its training data.
-- Prediction quality depends on the quality, angle, lighting, and visibility of the face in the input image.
+- Prediction quality depends on image quality, angle, lighting, and face visibility.
 - A confidence score is not a guarantee that a prediction is correct.
 - The **Unknown** threshold is a practical rejection rule, not proof that an unfamiliar person has been reliably identified as unknown.
 - Do not use this project to identify private individuals, monitor people, or conduct surveillance.
@@ -404,12 +425,11 @@ Review `preprocess_summary.csv`, `misclassified.csv`, and `classification_report
 - [scikit-learn](https://scikit-learn.org/)
 - [Streamlit](https://streamlit.io/)
 
----
+## Connect
 
-**Project:** Indian Cricketer Face Identification  
-**Purpose:** Computer vision and machine learning project  
-**Interface:** Streamlit
+I'm always open to connecting with fellow developers, learning new technologies, and exploring opportunities in AI/ML.
 
+- **LinkedIn:** [Meezan Shaikh](YOUR_LINKEDIN_PROFILE_URL)
+- **GitHub:** [meezanshaikh18](https://github.com/meezanshaikh18)
 
----
-
+If you find this project interesting, consider giving the repository a star.
