@@ -429,7 +429,7 @@ Review `preprocess_summary.csv`, `misclassified.csv`, and `classification_report
 
 I'm always open to connecting with fellow developers, learning new technologies, and exploring opportunities in AI/ML.
 
-- **LinkedIn:** [Meezan Shaikh](YOUR_LINKEDIN_PROFILE_URL)
+- **LinkedIn:** [Meezan Shaikh](https://www.linkedin.com/in/meezanshaikh18/)
 - **GitHub:** [meezanshaikh18](https://github.com/meezanshaikh18)
 
 If you find this project interesting, consider giving the repository a star.
